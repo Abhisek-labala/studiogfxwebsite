@@ -48,50 +48,7 @@ export default function HomePage() {
   const featuredProject = portfolio[0];
 
   // Pricing Packages (Investment Collections)
-  const packages = [
-    {
-      name: "The Elopement",
-      subtitle: "For Intimate Vows & Clandestine Vows",
-      price: "$2,200",
-      features: [
-        "4 Hours of Continuous Fine-Art Coverage",
-        "Creative Direction by Studio GFX Lead",
-        "Curated High-Contrast Digital Archive (200+ frames)",
-        "Private Online Cinematic Gallery with 1-Year Hosting",
-        "Personal Print Release & Delivery in 4 Weeks"
-      ],
-      featured: false
-    },
-    {
-      name: "The Editorial",
-      subtitle: "Our Signature Classic Storytelling Portfolio",
-      price: "$3,800",
-      features: [
-        "8 Hours of Continuous Full-Day Coverage",
-        "Creative Direction by Studio GFX Lead",
-        "Pre-Wedding Noir Engagement Shoot",
-        "Anamorphic Digital Archive (500+ frames)",
-        "Private Online Cinematic Gallery with 2-Year Hosting",
-        "Personal Print Release & Delivery in 6 Weeks"
-      ],
-      featured: false
-    },
-    {
-      name: "The Noir Coven",
-      subtitle: "Ultimate Editorial Fine-Art Package",
-      price: "$5,500",
-      features: [
-        "Full Day Photographic Coverage (No Hour Limits)",
-        "Studio GFX Lead + Professional Second Creative Director",
-        "Pre-Wedding Noir Engagement & Concept Session",
-        "Full Anamorphic Digital Archive (700+ frames)",
-        "Bespoke Italian Leather Fine-Art Print Box with 30 Prints",
-        "Priority 3-Week Expedited Post-Processing Delivery",
-        "Lifetime Gallery Backup & Hosting"
-      ],
-      featured: true
-    }
-  ];
+  const packages = config.packages || [];
 
   return (
     <div className={styles.pageContainer}>

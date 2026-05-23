@@ -25,5 +25,51 @@
   "aboutGear2": "Candid Camera System: Leica M11 Monochrom / Summilux 35mm f/1.4",
   "aboutGear3": "Secondary System: Sony Alpha 7R V / Sony 50mm f/1.2 GM prime",
   "aboutGear4": "Lighting Artistry: Profoto B10X AirTTL / Custom neon atmospheric continuous grids",
-  "aboutYears": "12+"
+  "aboutYears": "12+",
+  "contactTitle": "Start Your Legacy",
+  "contactDescription": "We document weddings globally. Dates are highly limited to preserve our fine-art post-processing standards. Share your wedding vision and let's build beautiful visual coven memoirs together.",
+  "packages": [
+    {
+      "name": "The Elopement",
+      "subtitle": "For Intimate Vows & Clandestine Vows",
+      "price": "₹1,80,000",
+      "features": [
+        "4 Hours of Continuous Fine-Art Coverage",
+        "Creative Direction by Studio GFX Lead",
+        "Curated High-Contrast Digital Archive (200+ frames)",
+        "Private Online Cinematic Gallery with 1-Year Hosting",
+        "Personal Print Release & Delivery in 4 Weeks"
+      ],
+      "featured": false
+    },
+    {
+      "name": "The Editorial",
+      "subtitle": "Our Signature Classic Storytelling Portfolio",
+      "price": "₹3,20,000",
+      "features": [
+        "8 Hours of Continuous Full-Day Coverage",
+        "Creative Direction by Studio GFX Lead",
+        "Pre-Wedding Noir Engagement Shoot",
+        "Anamorphic Digital Archive (500+ frames)",
+        "Private Online Cinematic Gallery with 2-Year Hosting",
+        "Personal Print Release & Delivery in 6 Weeks"
+      ],
+      "featured": false
+    },
+    {
+      "name": "The Noir Coven",
+      "subtitle": "Ultimate Editorial Fine-Art Package",
+      "price": "₹4,60,000",
+      "features": [
+        "Full Day Photographic Coverage (No Hour Limits)",
+        "Studio GFX Lead + Professional Second Creative Director",
+        "Pre-Wedding Noir Engagement & Concept Session",
+        "Full Anamorphic Digital Archive (700+ frames)",
+        "Bespoke Italian Leather Fine-Art Print Box with 30 Prints",
+        "Priority 3-Week Expedited Post-Processing Delivery",
+        "Lifetime Gallery Backup & Hosting"
+      ],
+      "featured": true
+    }
+  ]
 }

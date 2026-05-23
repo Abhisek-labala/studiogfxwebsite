@@ -25,7 +25,13 @@ export default function ContactPage() {
     async function fetchData() {
       try {
         const res = await fetch('/api/config');
-        if (res.ok) setConfig(await res.json());
+        if (res.ok) {
+          const cfg = await res.json();
+          setConfig(cfg);
+          if (cfg.packages && cfg.packages.length > 0) {
+            setContactForm(prev => ({ ...prev, collection: cfg.packages[1]?.name || cfg.packages[0]?.name }));
+          }
+        }
       } catch (err) {
         console.error('Failed to load database:', err);
       } finally {
@@ -42,12 +48,14 @@ export default function ContactPage() {
     setSubmitStatus({ success: null, message: '' });
 
     // Pack wedding details into subject for backend compatibility
-    const subject = `Wedding Booking Inquiry: ${contactForm.date} at ${contactForm.venue} (${contactForm.collection})`;
+    const selectedPkg = config.packages?.find(p => p.name === contactForm.collection);
+    const priceStr = selectedPkg ? ` (${selectedPkg.price})` : '';
+    const subject = `Wedding Booking Inquiry: ${contactForm.date} at ${contactForm.venue} (${contactForm.collection}${priceStr})`;
     const payload = {
       name: contactForm.name,
       email: contactForm.email,
       subject: subject,
-      message: `Wedding Date: ${contactForm.date}\nVenue/City: ${contactForm.venue}\nSelected Package: ${contactForm.collection}\n\nClient Message:\n${contactForm.message}`
+      message: `Wedding Date: ${contactForm.date}\nVenue/City: ${contactForm.venue}\nSelected Package: ${contactForm.collection}${priceStr}\n\nClient Message:\n${contactForm.message}`
     };
 
     try {
@@ -60,7 +68,7 @@ export default function ContactPage() {
       const data = await res.json();
       if (res.ok) {
         setSubmitStatus({ success: true, message: 'Wedding booking inquiry sent! Studio GFX will consult with you shortly.' });
-        setContactForm({ name: '', email: '', date: '', venue: '', collection: 'The Editorial', message: '' });
+        setContactForm({ name: '', email: '', date: '', venue: '', collection: config.packages?.[1]?.name || 'The Editorial', message: '' });
       } else {
         setSubmitStatus({ success: false, message: data.error || 'Failed to deliver booking request.' });
       }
@@ -88,7 +96,7 @@ export default function ContactPage() {
       <section className={styles.section} style={{ paddingTop: '140px' }}>
         <div className={styles.sectionHeader}>
           <span className={styles.sectionTag}>Commission Queries</span>
-          <h2 className={styles.sectionTitle} style={{ fontSize: '2.5rem' }}>Secure Your Date</h2>
+          <h2 className={styles.sectionTitle} style={{ fontSize: '2.5rem' }}>{config.contactTitle || 'Secure Your Date'}</h2>
         </div>
 
         <div className={styles.contactGrid}>
@@ -96,7 +104,7 @@ export default function ContactPage() {
             <div>
               <h3 className={styles.contactTitle} style={{ fontFamily: 'Cormorant Garamond', fontStyle: 'italic', fontSize: '2.2rem', fontWeight: 400 }}>Start Your Legacy</h3>
               <p className={styles.contactDesc}>
-                We document weddings globally. Dates are highly limited to preserve our fine-art post-processing standards. Share your wedding vision and let&apos;s build beautiful visual coven memoirs together.
+                {config.contactDescription || "We document weddings globally. Dates are highly limited to preserve our fine-art post-processing standards. Share your wedding vision and let's build beautiful visual coven memoirs together."}
               </p>
             </div>
 
@@ -201,9 +209,17 @@ export default function ContactPage() {
                   onChange={(e) => setContactForm({ ...contactForm, collection: e.target.value })}
                   style={{ background: '#121214', color: '#fff' }}
                 >
-                  <option value="The Elopement">The Elopement Collection ($2,200)</option>
-                  <option value="The Editorial">The Editorial Collection ($3,800)</option>
-                  <option value="The Noir Coven">The Noir Coven Collection ($5,500)</option>
+                  {config.packages?.map((pkg) => (
+                    <option key={pkg.name} value={pkg.name}>
+                      {pkg.name} Collection ({pkg.price})
+                    </option>
+                  )) || (
+                    <>
+                      <option value="The Elopement">The Elopement Collection (₹1,80,000)</option>
+                      <option value="The Editorial">The Editorial Collection (₹3,20,000)</option>
+                      <option value="The Noir Coven">The Noir Coven Collection (₹4,60,000)</option>
+                    </>
+                  )}
                 </select>
               </div>
 

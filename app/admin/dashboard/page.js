@@ -22,6 +22,7 @@ export default function AdminDashboardPage() {
   const [heroUploading, setHeroUploading] = useState(false);
   const [logoUploading, setLogoUploading] = useState(false);
   const [aboutProfileUploading, setAboutProfileUploading] = useState(false);
+  const [newFeatureInputs, setNewFeatureInputs] = useState(['', '', '']);
 
   // Form State: Gallery Uploader
   const [galleryForm, setGalleryForm] = useState({ title: '', category: '', imageUrl: '', description: '' });
@@ -250,6 +251,46 @@ export default function AdminDashboardPage() {
       triggerAlert('config', false, 'Server connection lost.');
     } finally {
       setConfigSaving(false);
+    }
+  };
+ 
+  // Handle package field changes
+  const handlePackageFieldChange = (index, field, value) => {
+    const updatedPkgs = [...(configForm.packages || [])];
+    if (updatedPkgs[index]) {
+      updatedPkgs[index] = { ...updatedPkgs[index], [field]: value };
+      setConfigForm(prev => ({ ...prev, packages: updatedPkgs }));
+    }
+  };
+
+  // Set a specific package as "featured" and disable others
+  const handleSetFeaturedPackage = (index) => {
+    const updatedPkgs = (configForm.packages || []).map((pkg, idx) => ({
+      ...pkg,
+      featured: idx === index
+    }));
+    setConfigForm(prev => ({ ...prev, packages: updatedPkgs }));
+  };
+
+  // Add a feature inclusion to a package
+  const handleAddPackageFeature = (index, featureText) => {
+    if (!featureText || !featureText.trim()) return;
+    const updatedPkgs = [...(configForm.packages || [])];
+    if (updatedPkgs[index]) {
+      const activeFeats = [...(updatedPkgs[index].features || [])];
+      activeFeats.push(featureText.trim());
+      updatedPkgs[index] = { ...updatedPkgs[index], features: activeFeats };
+      setConfigForm(prev => ({ ...prev, packages: updatedPkgs }));
+    }
+  };
+
+  // Delete a feature inclusion from a package
+  const handleDeletePackageFeature = (pkgIndex, featIndex) => {
+    const updatedPkgs = [...(configForm.packages || [])];
+    if (updatedPkgs[pkgIndex]) {
+      const activeFeats = (updatedPkgs[pkgIndex].features || []).filter((_, idx) => idx !== featIndex);
+      updatedPkgs[pkgIndex] = { ...updatedPkgs[pkgIndex], features: activeFeats };
+      setConfigForm(prev => ({ ...prev, packages: updatedPkgs }));
     }
   };
 
@@ -992,6 +1033,166 @@ export default function AdminDashboardPage() {
                       </div>
                     </div>
                   )}
+                </div>
+
+                {/* --- DYNAMIC CONTACT US CUSTOMIZATION --- */}
+                <div style={{ marginTop: '40px', borderTop: '1px dashed rgba(255,255,255,0.1)', paddingTop: '30px', marginBottom: '30px' }}>
+                  <h4 style={{ fontFamily: 'Syne', color: 'var(--accent-neon)', marginBottom: '20px', fontSize: '0.95rem', letterSpacing: '0.05em' }}>CONTACT US PAGE CUSTOMIZATION</h4>
+                  
+                  <div className={styles.formGrid}>
+                    <div className={styles.formGroup}>
+                      <label className={styles.formLabel}>Contact Page Title Tag</label>
+                      <input 
+                        type="text" 
+                        className="form-input"
+                        value={configForm.contactTitle || ''}
+                        onChange={(e) => setConfigForm({ ...configForm, contactTitle: e.target.value })}
+                        placeholder="e.g. Secure Your Date"
+                      />
+                    </div>
+                    
+                    <div className={styles.formGroup}>
+                      <label className={styles.formLabel}>Contact Page Description Story</label>
+                      <textarea 
+                        className="form-input"
+                        style={{ minHeight: '60px' }}
+                        value={configForm.contactDescription || ''}
+                        onChange={(e) => setConfigForm({ ...configForm, contactDescription: e.target.value })}
+                        placeholder="We document weddings globally..."
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* --- DYNAMIC WEDDING COLLECTIONS CONFIGURATOR --- */}
+                <div style={{ marginTop: '40px', borderTop: '1px dashed rgba(255,255,255,0.1)', paddingTop: '30px', marginBottom: '30px' }}>
+                  <h4 style={{ fontFamily: 'Syne', color: 'var(--accent-neon)', marginBottom: '10px', fontSize: '0.95rem', letterSpacing: '0.05em' }}>WEDDING COLLECTIONS (PRICING PACKAGES) CONFIGURATOR</h4>
+                  <p style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.4)', marginBottom: '20px' }}>Configure package names, subtitles, prices, and features directly. Prices will render with Rupee symbol ₹ dynamically in the client catalog.</p>
+                  
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '20px', marginTop: '20px' }}>
+                    {(configForm.packages || []).map((pkg, index) => {
+                      return (
+                        <div key={index} style={{ background: 'rgba(255,255,255,0.02)', border: pkg.featured ? '1px solid var(--accent-neon)' : '1px solid rgba(255,255,255,0.05)', borderRadius: 'var(--radius-md)', padding: '20px', display: 'flex', flexDirection: 'column', gap: '15px', position: 'relative' }}>
+                          {pkg.featured && (
+                            <span style={{ position: 'absolute', top: '12px', right: '12px', background: 'var(--accent-neon)', color: '#000', fontSize: '0.7rem', fontWeight: 700, padding: '2px 8px', borderRadius: '10px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                              Featured
+                            </span>
+                          )}
+                          
+                          <div className={styles.formGroup}>
+                            <label className={styles.formLabel}>Collection Name</label>
+                            <input 
+                              type="text" 
+                              required 
+                              className="form-input"
+                              value={pkg.name || ''}
+                              onChange={(e) => handlePackageFieldChange(index, 'name', e.target.value)}
+                              placeholder="e.g. The Elopement"
+                            />
+                          </div>
+
+                          <div className={styles.formGroup}>
+                            <label className={styles.formLabel}>Inspiration Subtitle</label>
+                            <input 
+                              type="text" 
+                              required 
+                              className="form-input"
+                              value={pkg.subtitle || ''}
+                              onChange={(e) => handlePackageFieldChange(index, 'subtitle', e.target.value)}
+                              placeholder="e.g. For Intimate Vows"
+                            />
+                          </div>
+
+                          <div className={styles.formGroup}>
+                            <label className={styles.formLabel}>Investment Price</label>
+                            <div style={{ position: 'relative' }}>
+                              <span style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--accent-neon)', fontWeight: 'bold' }}>₹</span>
+                              <input 
+                                type="text" 
+                                required 
+                                className="form-input"
+                                style={{ paddingLeft: '28px' }}
+                                value={pkg.price || ''}
+                                onChange={(e) => handlePackageFieldChange(index, 'price', e.target.value)}
+                                placeholder="e.g. ₹1,80,000"
+                              />
+                            </div>
+                          </div>
+
+                          <div className={styles.formGroup}>
+                            <label className={styles.formLabel}>Package Inclusions & Features</label>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '180px', overflowY: 'auto', marginBottom: '10px', border: '1px solid rgba(255,255,255,0.05)', padding: '10px', borderRadius: 'var(--radius-sm)', background: 'rgba(0,0,0,0.2)' }}>
+                              {(pkg.features || []).length === 0 ? (
+                                <span style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.3)', fontStyle: 'italic' }}>No features added yet.</span>
+                              ) : (
+                                (pkg.features || []).map((feat, fIdx) => (
+                                  <div key={fIdx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.02)', padding: '6px 10px', borderRadius: 'var(--radius-xs)', border: '1px solid rgba(255,255,255,0.02)' }}>
+                                    <span style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.7)', whiteSpace: 'normal', wordBreak: 'break-word', paddingRight: '10px' }}>{feat}</span>
+                                    <button 
+                                      type="button" 
+                                      onClick={() => handleDeletePackageFeature(index, fIdx)} 
+                                      style={{ background: 'none', border: 'none', color: '#ff3b30', fontSize: '0.9rem', cursor: 'pointer', padding: '2px' }}
+                                      title="Remove feature"
+                                    >
+                                      &times;
+                                    </button>
+                                  </div>
+                                ))
+                              )}
+                            </div>
+                            
+                            <div style={{ display: 'flex', gap: '8px' }}>
+                              <input 
+                                type="text" 
+                                className="form-input" 
+                                placeholder="Add feature detail..." 
+                                style={{ fontSize: '0.8rem' }}
+                                value={newFeatureInputs[index] || ''}
+                                onChange={(e) => {
+                                  const updatedInputs = [...newFeatureInputs];
+                                  updatedInputs[index] = e.target.value;
+                                  setNewFeatureInputs(updatedInputs);
+                                }}
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') {
+                                    e.preventDefault();
+                                    handleAddPackageFeature(index, newFeatureInputs[index]);
+                                    const updatedInputs = [...newFeatureInputs];
+                                    updatedInputs[index] = '';
+                                    setNewFeatureInputs(updatedInputs);
+                                  }
+                                }}
+                              />
+                              <button 
+                                type="button" 
+                                className="btn-outline" 
+                                style={{ padding: '0 15px', fontSize: '0.8rem' }}
+                                onClick={() => {
+                                  handleAddPackageFeature(index, newFeatureInputs[index]);
+                                  const updatedInputs = [...newFeatureInputs];
+                                  updatedInputs[index] = '';
+                                  setNewFeatureInputs(updatedInputs);
+                                }}
+                              >
+                                Add
+                              </button>
+                            </div>
+                          </div>
+
+                          <div style={{ marginTop: 'auto', paddingTop: '10px', borderTop: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.5)' }}>Featured Popular Highlight:</span>
+                            <input 
+                              type="radio" 
+                              name="featuredPackageRadio"
+                              checked={!!pkg.featured} 
+                              onChange={() => handleSetFeaturedPackage(index)}
+                              style={{ cursor: 'pointer', accentColor: 'var(--accent-neon)', width: '16px', height: '16px' }}
+                            />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
 
                 <button 
