@@ -3,27 +3,6 @@ import fs from 'fs';
 import path from 'path';
 import { auth } from '../../../lib/auth';
 import { put } from '@vercel/blob';
-import PSD from 'psd';
-
-// Helper to convert PSD buffer to standard PNG buffer entirely in-memory!
-async function convertPsdToPngBuffer(psdBuffer) {
-  const psd = new PSD(psdBuffer);
-  psd.parse();
-
-  if (!psd.image) {
-    throw new Error('PSD does not contain a valid flattened preview image');
-  }
-
-  const png = psd.image.toPng(); // Returns a compatible pngjs object
-  
-  return new Promise((resolve, reject) => {
-    const chunks = [];
-    png.pack()
-      .on('data', chunk => chunks.push(chunk))
-      .on('end', () => resolve(Buffer.concat(chunks)))
-      .on('error', reject);
-  });
-}
 
 export async function POST(req) {
   try {
@@ -53,21 +32,10 @@ export async function POST(req) {
 
     // DUAL MODE: Check if running on Vercel and Vercel Blob is configured
     if (process.env.BLOB_READ_WRITE_TOKEN) {
-      let bufferToUpload = buffer;
-      let uploadFileName = `${baseName}_${Date.now()}${ext}`;
+      const uploadFileName = `${baseName}_${Date.now()}${ext}`;
 
-      // In Vercel serverless environment, if PSD, convert in memory!
-      if (ext.toLowerCase() === '.psd') {
-        try {
-          bufferToUpload = await convertPsdToPngBuffer(buffer);
-          uploadFileName = `${baseName}_${Date.now()}.png`;
-        } catch (psdErr) {
-          console.error('Failed to convert PSD in memory for Vercel Blob:', psdErr);
-        }
-      }
-
-      // Upload to Vercel Blob cloud bucket
-      const blob = await put(uploadFileName, bufferToUpload, {
+      // Upload directly to Vercel Blob cloud bucket
+      const blob = await put(uploadFileName, buffer, {
         access: 'public',
       });
 
@@ -84,21 +52,9 @@ export async function POST(req) {
       fs.mkdirSync(uploadsDir, { recursive: true });
     }
 
-    let uploadBuffer = buffer;
-    let uniqueFileName = `${baseName}_${Date.now()}${ext}`;
-
-    // Auto-convert PSD to PNG on Localhost in memory!
-    if (ext.toLowerCase() === '.psd') {
-      try {
-        uploadBuffer = await convertPsdToPngBuffer(buffer);
-        uniqueFileName = `${baseName}_${Date.now()}.png`;
-      } catch (psdErr) {
-        console.error('Failed to auto-convert uploaded PSD to PNG locally in memory:', psdErr);
-      }
-    }
-
+    const uniqueFileName = `${baseName}_${Date.now()}${ext}`;
     const filePath = path.join(uploadsDir, uniqueFileName);
-    fs.writeFileSync(filePath, uploadBuffer);
+    fs.writeFileSync(filePath, buffer);
 
     const relativeUrl = `/uploads/${uniqueFileName}`;
 
