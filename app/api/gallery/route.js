@@ -57,3 +57,29 @@ export async function DELETE(req) {
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
+
+export async function PUT(req) {
+  try {
+    const session = await auth.verifySession();
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized administrative access' }, { status: 401 });
+    }
+
+    const body = await req.json();
+    const { id, ...updatedFields } = body;
+
+    if (!id) {
+      return NextResponse.json({ error: 'Gallery item ID is required' }, { status: 400 });
+    }
+
+    const updated = await db.updateGalleryItem(id, updatedFields);
+    if (!updated) {
+      return NextResponse.json({ error: 'Gallery item not found' }, { status: 404 });
+    }
+
+    return NextResponse.json({ success: true, item: updated });
+  } catch (err) {
+    console.error('Gallery PUT error:', err);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  }
+}

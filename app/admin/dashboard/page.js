@@ -27,6 +27,8 @@ export default function AdminDashboardPage() {
   const [galleryForm, setGalleryForm] = useState({ title: '', category: '', imageUrl: '', description: '' });
   const [photoUploading, setPhotoUploading] = useState(false);
   const [photoSaving, setPhotoSaving] = useState(false);
+  const [editingGalleryItem, setEditingGalleryItem] = useState(null);
+  const [editingPortfolioProject, setEditingPortfolioProject] = useState(null);
 
   // Form State: Portfolio Album Creator
   const [portfolioForm, setPortfolioForm] = useState({
@@ -114,10 +116,59 @@ export default function AdminDashboardPage() {
     }
   };
 
+  // Helper to convert PSD to standard PNG inside the client's browser (offloads server load and limits)
+  const processPsdClientSide = async (file, alertTabName) => {
+    triggerAlert(alertTabName, true, 'Parsing Photoshop PSD file client-side... (converting to high-fidelity PNG to bypass size limits)');
+    try {
+      const { readPsd } = await import('ag-psd');
+      
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+          try {
+            const arrayBuffer = e.target.result;
+            const psd = readPsd(arrayBuffer);
+            
+            if (!psd.canvas) {
+              reject(new Error('PSD does not contain a valid flattened preview. Please enable "Maximize Compatibility" in Photoshop when saving.'));
+              return;
+            }
+            
+            psd.canvas.toBlob((blob) => {
+              if (blob) {
+                const pngFile = new File([blob], file.name.replace(/\.psd$/i, '.png'), { type: 'image/png' });
+                resolve(pngFile);
+              } else {
+                reject(new Error('Failed to render PSD canvas.'));
+              }
+            }, 'image/png');
+          } catch (err) {
+            reject(err);
+          }
+        };
+        reader.onerror = () => reject(new Error('Failed to read PSD file array buffer.'));
+        reader.readAsArrayBuffer(file);
+      });
+    } catch (err) {
+      console.error('Client-side PSD converter error:', err);
+      throw new Error('PSD converter error: ' + err.message);
+    }
+  };
+
   // Image Upload Core Handler
-  const uploadImageFile = async (file) => {
+  const uploadImageFile = async (file, alertTabName = 'config') => {
+    let fileToUpload = file;
+    if (file.name.toLowerCase().endsWith('.psd')) {
+      try {
+        fileToUpload = await processPsdClientSide(file, alertTabName);
+      } catch (psdErr) {
+        triggerAlert(alertTabName, false, psdErr.message);
+        throw psdErr;
+      }
+    }
+
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append('file', fileToUpload);
     
     const res = await fetch('/api/upload', {
       method: 'POST',
@@ -208,7 +259,7 @@ export default function AdminDashboardPage() {
     if (!file) return;
     setPhotoUploading(true);
     try {
-      const imageUrl = await uploadImageFile(file);
+      const imageUrl = await uploadImageFile(file, 'gallery');
       setGalleryForm(prev => ({ ...prev, imageUrl }));
       triggerAlert('gallery', true, 'Gallery photo uploaded successfully.');
     } catch (err) {
@@ -216,6 +267,24 @@ export default function AdminDashboardPage() {
     } finally {
       setPhotoUploading(false);
     }
+  };
+
+  const handleGalleryEditStart = (item) => {
+    setEditingGalleryItem(item);
+    setGalleryForm({
+      title: item.title,
+      category: item.category,
+      imageUrl: item.imageUrl,
+      description: item.description || ''
+    });
+    // Scroll smoothly to the top form
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleGalleryEditCancel = () => {
+    setEditingGalleryItem(null);
+    setGalleryForm({ title: '', category: '', imageUrl: '', description: '' });
+    if (galleryFileRef.current) galleryFileRef.current.value = '';
   };
 
   const handleGallerySubmit = async (e) => {
@@ -226,19 +295,32 @@ export default function AdminDashboardPage() {
     }
     setPhotoSaving(true);
     try {
-      const res = await fetch('/api/gallery', {
-        method: 'POST',
+      const isEditing = !!editingGalleryItem;
+      const url = '/api/gallery';
+      const method = isEditing ? 'PUT' : 'POST';
+      const bodyPayload = isEditing 
+        ? { id: editingGalleryItem.id, ...galleryForm } 
+        : galleryForm;
+
+      const res = await fetch(url, {
+        method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(galleryForm)
+        body: JSON.stringify(bodyPayload)
       });
       if (res.ok) {
         const data = await res.json();
-        setGallery(prev => [data.item, ...prev]);
+        if (isEditing) {
+          setGallery(prev => prev.map(item => item.id === editingGalleryItem.id ? data.item : item));
+          setEditingGalleryItem(null);
+          triggerAlert('gallery', true, 'Gallery photo updated successfully!');
+        } else {
+          setGallery(prev => [data.item, ...prev]);
+          triggerAlert('gallery', true, 'Photo published successfully!');
+        }
         setGalleryForm({ title: '', category: '', imageUrl: '', description: '' });
         if (galleryFileRef.current) galleryFileRef.current.value = '';
-        triggerAlert('gallery', true, 'Photo published successfully!');
       } else {
-        triggerAlert('gallery', false, 'Failed to publish photo.');
+        triggerAlert('gallery', false, isEditing ? 'Failed to update photo.' : 'Failed to publish photo.');
       }
     } catch (err) {
       triggerAlert('gallery', false, 'Database error.');
@@ -268,7 +350,7 @@ export default function AdminDashboardPage() {
     if (!file) return;
     setCoverUploading(true);
     try {
-      const imageUrl = await uploadImageFile(file);
+      const imageUrl = await uploadImageFile(file, 'portfolio');
       setPortfolioForm(prev => ({ ...prev, coverImageUrl: imageUrl }));
       triggerAlert('portfolio', true, 'Album cover uploaded successfully.');
     } catch (err) {
@@ -285,7 +367,7 @@ export default function AdminDashboardPage() {
     try {
       const urls = [];
       for (const file of files) {
-        const url = await uploadImageFile(file);
+        const url = await uploadImageFile(file, 'portfolio');
         urls.push(url);
       }
       setPortfolioForm(prev => ({
@@ -308,6 +390,30 @@ export default function AdminDashboardPage() {
     }));
   };
 
+  const handlePortfolioEditStart = (project) => {
+    setEditingPortfolioProject(project);
+    setPortfolioForm({
+      title: project.title,
+      category: project.category,
+      client: project.client || '',
+      date: project.date || '',
+      description: project.description || '',
+      coverImageUrl: project.coverImageUrl || '',
+      images: project.images || []
+    });
+    // Scroll smoothly to the top form
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handlePortfolioEditCancel = () => {
+    setEditingPortfolioProject(null);
+    setPortfolioForm({
+      title: '', category: '', description: '', client: '', date: '', coverImageUrl: '', images: []
+    });
+    if (coverFileRef.current) coverFileRef.current.value = '';
+    if (multiFileRef.current) multiFileRef.current.value = '';
+  };
+
   const handlePortfolioSubmit = async (e) => {
     e.preventDefault();
     if (!portfolioForm.coverImageUrl) {
@@ -316,21 +422,34 @@ export default function AdminDashboardPage() {
     }
     setPortfolioSaving(true);
     try {
-      const res = await fetch('/api/portfolio', {
-        method: 'POST',
+      const isEditing = !!editingPortfolioProject;
+      const url = '/api/portfolio';
+      const method = isEditing ? 'PUT' : 'POST';
+      const bodyPayload = isEditing 
+        ? { id: editingPortfolioProject.id, ...portfolioForm } 
+        : portfolioForm;
+
+      const res = await fetch(url, {
+        method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(portfolioForm)
+        body: JSON.stringify(bodyPayload)
       });
       if (res.ok) {
         const data = await res.json();
-        setPortfolio(prev => [data.project, ...prev]);
+        if (isEditing) {
+          setPortfolio(prev => prev.map(p => p.id === editingPortfolioProject.id ? data.project : p));
+          setEditingPortfolioProject(null);
+          triggerAlert('portfolio', true, 'Portfolio album updated successfully!');
+        } else {
+          setPortfolio(prev => [data.project, ...prev]);
+          triggerAlert('portfolio', true, 'Portfolio album published successfully!');
+        }
         setPortfolioForm({
           title: '', category: '', description: '', client: '', date: '', coverImageUrl: '', images: []
         });
         if (coverFileRef.current) coverFileRef.current.value = '';
-        triggerAlert('portfolio', true, 'Portfolio album published successfully!');
       } else {
-        triggerAlert('portfolio', false, 'Failed to publish album.');
+        triggerAlert('portfolio', false, isEditing ? 'Failed to update album.' : 'Failed to publish album.');
       }
     } catch (err) {
       triggerAlert('portfolio', false, 'Database connection error.');
@@ -892,7 +1011,9 @@ export default function AdminDashboardPage() {
             <>
               {/* Uploader Card */}
               <div className={styles.managerPanel}>
-                <h3 className={styles.panelTitle}>Publish New Photo to Gallery</h3>
+                <h3 className={styles.panelTitle}>
+                  {editingGalleryItem ? `Edit Photo: ${editingGalleryItem.title}` : 'Publish New Photo to Gallery'}
+                </h3>
                 
                 {alertInfo.tab === 'gallery' && (
                   <div className={`status-message ${alertInfo.success ? styles.statusSuccess : styles.statusError}`} style={{ marginBottom: '25px', padding: '12px' }}>
@@ -974,14 +1095,26 @@ export default function AdminDashboardPage() {
                     )}
                   </div>
 
-                  <button 
-                    type="submit" 
-                    disabled={photoSaving} 
-                    className="btn-neon" 
-                    style={{ width: '200px' }}
-                  >
-                    {photoSaving ? 'Publishing...' : 'Publish Photo'}
-                  </button>
+                  <div style={{ display: 'flex', gap: '15px' }}>
+                    <button 
+                      type="submit" 
+                      disabled={photoSaving} 
+                      className="btn-neon" 
+                      style={{ width: '220px' }}
+                    >
+                      {photoSaving ? 'Saving...' : (editingGalleryItem ? 'Save Photo Changes' : 'Publish Photo')}
+                    </button>
+                    {editingGalleryItem && (
+                      <button 
+                        type="button" 
+                        className="btn-outline" 
+                        onClick={handleGalleryEditCancel}
+                        style={{ width: '150px' }}
+                      >
+                        Cancel Edit
+                      </button>
+                    )}
+                  </div>
                 </form>
               </div>
 
@@ -999,9 +1132,30 @@ export default function AdminDashboardPage() {
                         </button>
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src={item.imageUrl} alt={item.title} className={styles.adminPhotoImg} />
-                        <div className={styles.adminPhotoInfo}>
+                        <div className={styles.adminPhotoInfo} style={{ position: 'relative' }}>
                           <div className={styles.adminPhotoTitle}>{item.title}</div>
                           <span className={styles.adminPhotoCategory}>{item.category}</span>
+                          <button 
+                            type="button" 
+                            onClick={() => handleGalleryEditStart(item)} 
+                            style={{ 
+                              position: 'absolute', 
+                              right: '12px', 
+                              bottom: '12px', 
+                              background: 'rgba(255,255,255,0.04)', 
+                              border: '1px solid rgba(255,255,255,0.1)', 
+                              color: 'var(--accent-neon)', 
+                              fontSize: '0.65rem', 
+                              padding: '4px 10px', 
+                              borderRadius: '4px',
+                              cursor: 'pointer',
+                              fontFamily: 'Syne',
+                              fontWeight: 'bold',
+                              letterSpacing: '0.05em'
+                            }}
+                          >
+                            EDIT
+                          </button>
                         </div>
                       </div>
                     ))}
@@ -1016,7 +1170,9 @@ export default function AdminDashboardPage() {
             <>
               {/* Creator Card */}
               <div className={styles.managerPanel}>
-                <h3 className={styles.panelTitle}>Create Custom Portfolio Album</h3>
+                <h3 className={styles.panelTitle}>
+                  {editingPortfolioProject ? `Edit Portfolio Album: ${editingPortfolioProject.title}` : 'Create Custom Portfolio Album'}
+                </h3>
                 
                 {alertInfo.tab === 'portfolio' && (
                   <div className={`status-message ${alertInfo.success ? styles.statusSuccess : styles.statusError}`} style={{ marginBottom: '25px', padding: '12px' }}>
@@ -1163,14 +1319,26 @@ export default function AdminDashboardPage() {
                     </div>
                   </div>
 
-                  <button 
-                    type="submit" 
-                    disabled={portfolioSaving} 
-                    className="btn-neon" 
-                    style={{ width: '220px' }}
-                  >
-                    {portfolioSaving ? 'Publishing Album...' : 'Publish Portfolio Album'}
-                  </button>
+                  <div style={{ display: 'flex', gap: '15px' }}>
+                    <button 
+                      type="submit" 
+                      disabled={portfolioSaving} 
+                      className="btn-neon" 
+                      style={{ width: '220px' }}
+                    >
+                      {portfolioSaving ? 'Saving Album...' : (editingPortfolioProject ? 'Save Album Changes' : 'Publish Portfolio Album')}
+                    </button>
+                    {editingPortfolioProject && (
+                      <button 
+                        type="button" 
+                        className="btn-outline" 
+                        onClick={handlePortfolioEditCancel}
+                        style={{ width: '150px' }}
+                      >
+                        Cancel Edit
+                      </button>
+                    )}
+                  </div>
                 </form>
               </div>
 
@@ -1191,8 +1359,30 @@ export default function AdminDashboardPage() {
                             <span className={styles.projectListCategory}>{p.category} ({p.images.length} photos)</span>
                           </div>
                         </div>
-                        <div className={styles.projectListActions}>
-                          <button className="btn-outline" onClick={() => handlePortfolioDelete(p.id)} style={{ borderColor: 'rgba(239, 68, 68, 0.4)', color: '#ef4444', padding: '8px 16px', fontSize: '0.75rem' }}>
+                        <div className={styles.projectListActions} style={{ display: 'flex', gap: '10px' }}>
+                          <button 
+                            type="button"
+                            className="btn-neon" 
+                            onClick={() => handlePortfolioEditStart(p)} 
+                            style={{ 
+                              padding: '8px 16px', 
+                              fontSize: '0.75rem',
+                              width: 'fit-content'
+                            }}
+                          >
+                            Edit Album
+                          </button>
+                          <button 
+                            type="button"
+                            className="btn-outline" 
+                            onClick={() => handlePortfolioDelete(p.id)} 
+                            style={{ 
+                              borderColor: 'rgba(239, 68, 68, 0.4)', 
+                              color: '#ef4444', 
+                              padding: '8px 16px', 
+                              fontSize: '0.75rem' 
+                            }}
+                          >
                             Delete Album
                           </button>
                         </div>
