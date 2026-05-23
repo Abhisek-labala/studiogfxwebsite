@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 import { auth } from '../../../lib/auth';
+import { execSync } from 'child_process';
 
 export async function POST(req) {
   try {
@@ -41,7 +42,26 @@ export async function POST(req) {
     // 6. Write file asynchronously
     fs.writeFileSync(filePath, buffer);
 
-    const relativeUrl = `/uploads/${uniqueFileName}`;
+    let relativeUrl = `/uploads/${uniqueFileName}`;
+
+    // 7. Auto-convert PSD to PNG so browsers can render it natively!
+    if (ext.toLowerCase() === '.psd') {
+      try {
+        const pngFileName = `${baseName}_${Date.now()}.png`;
+        const pngPath = path.join(uploadsDir, pngFileName);
+        
+        const scriptPath = path.join(process.cwd(), 'scripts', 'convert_psd.js');
+        
+        // Spawn standard node child process to parse and convert without bundler warnings!
+        execSync(`node "${scriptPath}" "${filePath}" "${pngPath}"`, { stdio: 'ignore' });
+        
+        // Return the converted PNG so that browser displays the image!
+        relativeUrl = `/uploads/${pngFileName}`;
+      } catch (psdErr) {
+        console.error('Failed to auto-convert uploaded PSD to PNG via child process:', psdErr);
+      }
+    }
+
     return NextResponse.json({ 
       success: true, 
       url: relativeUrl,
