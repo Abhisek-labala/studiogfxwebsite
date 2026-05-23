@@ -2,8 +2,28 @@ import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 import { auth } from '../../../lib/auth';
-import { execSync } from 'child_process';
 import { put } from '@vercel/blob';
+import PSD from 'psd';
+
+// Helper to convert PSD buffer to standard PNG buffer entirely in-memory!
+async function convertPsdToPngBuffer(psdBuffer) {
+  const psd = new PSD(psdBuffer);
+  psd.parse();
+
+  if (!psd.image) {
+    throw new Error('PSD does not contain a valid flattened preview image');
+  }
+
+  const png = psd.image.toPng(); // Returns a compatible pngjs object
+  
+  return new Promise((resolve, reject) => {
+    const chunks = [];
+    png.pack()
+      .on('data', chunk => chunks.push(chunk))
+      .on('end', () => resolve(Buffer.concat(chunks)))
+      .on('error', reject);
+  });
+}
 
 export async function POST(req) {
   try {
@@ -36,27 +56,13 @@ export async function POST(req) {
       let bufferToUpload = buffer;
       let uploadFileName = `${baseName}_${Date.now()}${ext}`;
 
-      // In Vercel serverless environment, if PSD, convert in /tmp folder!
+      // In Vercel serverless environment, if PSD, convert in memory!
       if (ext.toLowerCase() === '.psd') {
         try {
-          const tmpDir = '/tmp';
-          const psdPath = path.join(tmpDir, uploadFileName);
-          const pngFileName = `${baseName}_${Date.now()}.png`;
-          const pngPath = path.join(tmpDir, pngFileName);
-          
-          fs.writeFileSync(psdPath, buffer);
-          
-          // Execute PSD converter utility
-          const scriptPath = path.join(process.cwd(), 'scripts', 'convert_psd.js');
-          execSync(`node "${scriptPath}" "${psdPath}" "${pngPath}"`, { stdio: 'ignore' });
-          
-          bufferToUpload = fs.readFileSync(pngPath);
-          uploadFileName = pngFileName;
-          
-          // Cleanup temp files
-          try { fs.unlinkSync(psdPath); fs.unlinkSync(pngPath); } catch (_) {}
+          bufferToUpload = await convertPsdToPngBuffer(buffer);
+          uploadFileName = `${baseName}_${Date.now()}.png`;
         } catch (psdErr) {
-          console.error('Failed to convert PSD inside Vercel serverless /tmp folder:', psdErr);
+          console.error('Failed to convert PSD in memory for Vercel Blob:', psdErr);
         }
       }
 
@@ -78,26 +84,23 @@ export async function POST(req) {
       fs.mkdirSync(uploadsDir, { recursive: true });
     }
 
-    const uniqueFileName = `${baseName}_${Date.now()}${ext}`;
-    const filePath = path.join(uploadsDir, uniqueFileName);
+    let uploadBuffer = buffer;
+    let uniqueFileName = `${baseName}_${Date.now()}${ext}`;
 
-    // Write original file
-    fs.writeFileSync(filePath, buffer);
-
-    let relativeUrl = `/uploads/${uniqueFileName}`;
-
-    // Auto-convert PSD to PNG on Localhost
+    // Auto-convert PSD to PNG on Localhost in memory!
     if (ext.toLowerCase() === '.psd') {
       try {
-        const pngFileName = `${baseName}_${Date.now()}.png`;
-        const pngPath = path.join(uploadsDir, pngFileName);
-        const scriptPath = path.join(process.cwd(), 'scripts', 'convert_psd.js');
-        execSync(`node "${scriptPath}" "${filePath}" "${pngPath}"`, { stdio: 'ignore' });
-        relativeUrl = `/uploads/${pngFileName}`;
+        uploadBuffer = await convertPsdToPngBuffer(buffer);
+        uniqueFileName = `${baseName}_${Date.now()}.png`;
       } catch (psdErr) {
-        console.error('Failed to auto-convert uploaded PSD to PNG locally:', psdErr);
+        console.error('Failed to auto-convert uploaded PSD to PNG locally in memory:', psdErr);
       }
     }
+
+    const filePath = path.join(uploadsDir, uniqueFileName);
+    fs.writeFileSync(filePath, uploadBuffer);
+
+    const relativeUrl = `/uploads/${uniqueFileName}`;
 
     return NextResponse.json({ 
       success: true, 
