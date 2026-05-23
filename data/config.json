@@ -1,0 +1,29 @@
+{
+  "siteName": "STUDIO GFX",
+  "tagline": "Capturing Life's Electric Moments",
+  "themeColor": "#76ff03",
+  "secondaryColor": "#ffffff",
+  "email": "contact@studiogfx.com",
+  "phone": "+1 (555) 019-2834",
+  "location": "New York, NY",
+  "aboutText": "We are a creative photography collective specializing in high-energy, electric visuals. Our mission is to capture raw emotion and turn it into breathtaking art, focusing on deep blacks, sharp light play, and striking highlights.",
+  "aboutQuote": "Photography is the story I fail to put into words.",
+  "socialLinks": {
+    "instagram": "https://instagram.com/studiogfx",
+    "twitter": "https://twitter.com/studiogfx",
+    "facebook": "https://facebook.com/studiogfx",
+    "youtube": "https://youtube.com/studiogfx"
+  },
+  "heroImage": "/uploads/hero_default.png",
+  "logoImage": "/uploads/logo_car_1779529645261.psd",
+  "aboutName": "V Sunil Kumar",
+  "aboutRole": "Lead Creative Director & Visionary",
+  "aboutProfileImage": "/uploads/about_profile.png",
+  "aboutBio2": "Aria Vance has spent over a decade documenting celebrations across New York, Tokyo, Milan, and beyond. Her work is recognized for its uncompromising visual drama—blending raw, unposed photojournalistic storytelling with luxurious, high-fashion editorial styling. By working closely with each couple, she captures not just the events, but the unique energetic pulse and silent connections of their celebration.",
+  "aboutManifesto": "We believe that your love is an avant-garde masterpiece. We reject traditional wedding photography checklists, forced static posing, and over-processed filters. Our approach is deeply immersive, observing the quiet heartbeats, the electric glances, and the wild, untamed dancefloor memories. We treat every celebration as a cinematic feature film, ensuring your memories are preserved as fine art.",
+  "aboutGear1": "Medium Format System: Hasselblad X2D 100C / Hasselblad XCD prime lenses",
+  "aboutGear2": "Candid Camera System: Leica M11 Monochrom / Summilux 35mm f/1.4",
+  "aboutGear3": "Secondary System: Sony Alpha 7R V / Sony 50mm f/1.2 GM prime",
+  "aboutGear4": "Lighting Artistry: Profoto B10X AirTTL / Custom neon atmospheric continuous grids",
+  "aboutYears": "12+"
+}

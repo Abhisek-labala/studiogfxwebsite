@@ -1,0 +1,43 @@
+[
+  {
+    "id": "port_1779529555932",
+    "title": " Half-Light",
+    "category": "Personal",
+    "description": "A focused look at the lighting, styling, and direction behind the series. Each frame built around contrast — light, motion, and silence.",
+    "client": "Personal",
+    "date": "2026-01",
+    "coverImageUrl": "/uploads/download_1779529542227.jpeg",
+    "images": [
+      "/uploads/download_1779529553732.jpeg",
+      "/uploads/IMG_9528_1779529553751.PNG"
+    ]
+  },
+  {
+    "id": "port_1",
+    "title": "Tokyo Rain Vows",
+    "category": "Street Portraiture",
+    "description": "An intimate night elopement across high-density neon-lit corridors in Shinjuku, capturing the raw energy of vows made in rain-slicked concrete streets under giant green billboard glow.",
+    "client": "Mimi & Kenji",
+    "date": "2026-04",
+    "coverImageUrl": "/uploads/port1_cover.png",
+    "images": [
+      "/uploads/gal_cyber_portrait.png",
+      "/uploads/gal_nocturnal_streets.png",
+      "/uploads/gal_architecture_neon.png"
+    ]
+  },
+  {
+    "id": "port_2",
+    "title": "Brutalist Sanctuary",
+    "category": "Architectural Geometry",
+    "description": "A minimalist study of high-contrast concrete chapels and sharp geometric arches, utilizing vertical neon slot light rays to frame the couple in dramatic Vogue-inspired visual frames.",
+    "client": "Clara & David",
+    "date": "2026-05",
+    "coverImageUrl": "/uploads/port2_cover.png",
+    "images": [
+      "/uploads/gal_architecture_neon.png",
+      "/uploads/gal_nocturnal_streets.png",
+      "/uploads/gal_cyber_portrait.png"
+    ]
+  }
+]

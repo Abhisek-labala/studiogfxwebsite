@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" width="100%" height="100%">
+  <rect width="100%" height="100%" fill="#0a0a0b"/>
+  
+  <!-- Triple layered geometric wedding arch -->
+  <g fill="none" stroke="#76ff03" stroke-linejoin="round">
+    <!-- Outer Hex -->
+    <polygon points="400,200 650,380 650,750 400,930 150,750 150,380" stroke-width="3" stroke-opacity="0.8"/>
+    <!-- Middle Hex -->
+    <polygon points="400,230 620,395 620,735 400,900 180,735 180,395" stroke-width="1.5" stroke-opacity="0.5" stroke-dasharray="10 5"/>
+    <!-- Inner Hex -->
+    <polygon points="400,260 590,410 590,720 400,870 210,720 210,410" stroke-width="1" stroke-opacity="0.3"/>
+  </g>
+  
+  <!-- Minimalist neon flower cluster representations on corners -->
+  <g fill="none" stroke="#76ff03" stroke-width="2">
+    <circle cx="150" cy="380" r="15" stroke-opacity="0.7"/>
+    <circle cx="150" cy="380" r="8" fill="#76ff03" fill-opacity="0.3"/>
+    
+    <circle cx="650" cy="750" r="20" stroke-opacity="0.7"/>
+    <circle cx="650" cy="750" r="10" fill="#76ff03" fill-opacity="0.3"/>
+  </g>
+  
+  <text x="50" y="950" fill="#76ff03" font-family="'Cormorant Garamond', serif" font-style="italic" font-size="20" letter-spacing="1" opacity="0.7">[THE CHIC ARCHWAY]</text>
+  <text x="750" y="950" fill="#76ff03" font-family="monospace" font-size="12" text-anchor="end" opacity="0.6">GEOMETRICAL</text>
+</svg>

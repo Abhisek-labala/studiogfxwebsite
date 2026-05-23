@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" width="100%" height="100%">
+  <rect width="100%" height="100%" fill="#0a0a0c"/>
+  <defs>
+    <radialGradient id="face-glow" cx="50%" cy="35%" r="40%">
+      <stop offset="0%" stop-color="#76ff03" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#000" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <circle cx="400" cy="350" r="300" fill="url(#face-glow)"/>
+  
+  <!-- Bridal Silhouette & Glowing Crown -->
+  <g transform="translate(150, 150)" fill="none" stroke="#76ff03">
+    <!-- Veil lines -->
+    <path d="M 150,150 C 80,250 50,450 40,750 M 350,150 C 420,250 450,450 460,750" stroke-width="1.5" stroke-opacity="0.4" stroke-dasharray="10 5"/>
+    <path d="M 250,120 C 130,220 90,440 80,750 M 250,120 C 370,220 410,440 420,750" stroke-width="1" stroke-opacity="0.2"/>
+    
+    <!-- Glowing Floral Crown -->
+    <ellipse cx="250" cy="140" rx="90" ry="25" stroke-width="3" stroke-opacity="0.8"/>
+    <circle cx="160" cy="140" r="8" fill="#76ff03" fill-opacity="0.3" stroke-width="1.5"/>
+    <circle cx="205" cy="120" r="10" fill="#76ff03" fill-opacity="0.3" stroke-width="1.5"/>
+    <circle cx="250" cy="115" r="8" fill="#76ff03" fill-opacity="0.3" stroke-width="1.5"/>
+    <circle cx="295" cy="120" r="10" fill="#76ff03" fill-opacity="0.3" stroke-width="1.5"/>
+    <circle cx="340" cy="140" r="8" fill="#76ff03" fill-opacity="0.3" stroke-width="1.5"/>
+    
+    <!-- Face outline -->
+    <path d="M 190,160 Q 250,220 250,290 Q 250,430 200,480 M 310,160 Q 250,220 250,290" stroke-width="1.5" stroke-opacity="0.4"/>
+    <path d="M 230,480 Q 250,510 270,480" stroke-width="2" stroke-opacity="0.6"/>
+    
+    <!-- Bridal dress neck line -->
+    <path d="M 160,550 Q 250,620 340,550" stroke-width="2" stroke-opacity="0.8"/>
+    <path d="M 180,570 Q 250,620 320,570" stroke-width="1" stroke-opacity="0.4"/>
+  </g>
+  
+  <text x="50" y="950" fill="#76ff03" font-family="'Cormorant Garamond', serif" font-style="italic" font-size="20" letter-spacing="1" opacity="0.7">[THE BRIDAL REVEAL]</text>
+  <text x="750" y="950" fill="#76ff03" font-family="monospace" font-size="12" text-anchor="end" opacity="0.6">ISO 200</text>
+</svg>

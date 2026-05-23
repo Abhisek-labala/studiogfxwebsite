@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" width="100%" height="100%">
+  <rect width="100%" height="100%" fill="#070708"/>
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#76ff03" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#76ff03" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="neon-stream" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#76ff03" stop-opacity="0.8"/>
+      <stop offset="60%" stop-color="#39ff14" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#000" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  
+  <circle cx="800" cy="450" r="500" fill="url(#glow)"/>
+  
+  <!-- Perspective wedding arch lines -->
+  <path d="M 500,900 L 800,200 L 1100,900" fill="none" stroke="#76ff03" stroke-width="1.5" stroke-opacity="0.2" stroke-dasharray="10 5"/>
+  <path d="M 480,900 L 800,180 L 1120,900" fill="none" stroke="#76ff03" stroke-width="3" stroke-opacity="0.35"/>
+  
+  <!-- Couple Silhouette holding hands -->
+  <g transform="translate(730, 320)" fill="none" stroke="#76ff03">
+    <!-- Groom -->
+    <circle cx="45" cy="50" r="12" stroke-width="2" stroke-opacity="0.8"/>
+    <path d="M 45,62 L 45,150 M 45,75 L 25,110 M 45,75 L 60,110 M 45,150 L 30,220 M 45,150 L 60,220" stroke-width="2.5" stroke-opacity="0.8"/>
+    
+    <!-- Bride with flowing dress -->
+    <circle cx="105" cy="55" r="10" stroke-width="2" stroke-opacity="0.8"/>
+    <path d="M 105,65 L 105,100 M 105,75 L 85,110 M 105,75 L 125,110" stroke-width="2.5" stroke-opacity="0.8"/>
+    <path d="M 105,100 L 70,220 H 140 Z" fill="#76ff03" fill-opacity="0.1" stroke-width="2" stroke-opacity="0.8"/>
+    
+    <!-- Intersecting hand connection ray -->
+    <path d="M 60,110 Q 72,112 85,110" stroke="#fff" stroke-width="2" stroke-opacity="0.9"/>
+  </g>
+
+  <!-- Organic neon leaf vine hanging down -->
+  <path d="M 100,-20 Q 400,200 800,50 Q 1200,200 1500,-20" fill="none" stroke="#76ff03" stroke-width="1.5" stroke-opacity="0.25"/>
+  
+  <!-- HUD / Fine art wedding credentials -->
+  <path d="M 1520,50 L 1550,50 L 1550,80 M 1550,850 L 1550,880 L 1520,880 M 80,880 L 50,880 L 50,850 M 50,80 L 50,50 L 80,50" fill="none" stroke="#76ff03" stroke-width="2" stroke-opacity="0.5"/>
+  <text x="800" y="840" fill="#76ff03" font-family="'Cormorant Garamond', serif" font-style="italic" font-size="28" letter-spacing="4" text-anchor="middle" opacity="0.8">Documenting Love in Monochrome &amp; Neon</text>
+  <text x="800" y="870" fill="#fff" font-family="monospace" font-size="11" letter-spacing="6" text-anchor="middle" opacity="0.5">STUDIO GFX // EDITORIAL WEDDINGS</text>
+</svg>

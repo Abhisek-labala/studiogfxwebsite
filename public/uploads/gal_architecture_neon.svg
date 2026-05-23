@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" width="100%" height="100%">
+  <rect width="100%" height="100%" fill="#08080a"/>
+  
+  <!-- Concentric glowing chapel arches -->
+  <g fill="none" stroke="#76ff03" stroke-linejoin="round">
+    <path d="M 150,900 V 450 C 150,300 250,200 400,200 C 550,200 650,300 650,900" stroke-width="3" stroke-opacity="0.8"/>
+    <path d="M 200,900 V 480 C 200,350 280,260 400,260 C 520,260 600,350 600,900" stroke-width="2.5" stroke-opacity="0.6"/>
+    <path d="M 250,900 V 510 C 250,400 310,320 400,320 C 490,320 550,400 550,900" stroke-width="1.5" stroke-opacity="0.4"/>
+  </g>
+  
+  <!-- Minimalist glowing cross at altar -->
+  <g stroke="#76ff03" stroke-width="2.5" stroke-opacity="0.9" fill="none">
+    <line x1="400" y1="420" x2="400" y2="580"/>
+    <line x1="340" y1="470" x2="460" y2="470"/>
+  </g>
+  <circle cx="400" cy="470" r="30" fill="none" stroke="#76ff03" stroke-width="1" stroke-opacity="0.3"/>
+  
+  <text x="50" y="950" fill="#76ff03" font-family="'Cormorant Garamond', serif" font-style="italic" font-size="20" letter-spacing="1" opacity="0.7">[THE BRUTALIST ALTAR]</text>
+  <text x="750" y="950" fill="#76ff03" font-family="monospace" font-size="12" text-anchor="end" opacity="0.6">ARCH-09</text>
+</svg>
