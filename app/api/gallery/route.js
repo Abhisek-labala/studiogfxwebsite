@@ -4,7 +4,7 @@ import { auth } from '../../../lib/auth';
 
 export async function GET() {
   try {
-    const gallery = db.getGallery();
+    const gallery = await db.getGallery();
     return NextResponse.json(gallery);
   } catch (err) {
     console.error('Gallery GET error:', err);
@@ -24,7 +24,7 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Image URL is required' }, { status: 400 });
     }
 
-    const newItem = db.addGalleryItem(body);
+    const newItem = await db.addGalleryItem(body);
     return NextResponse.json({ success: true, item: newItem });
   } catch (err) {
     console.error('Gallery POST error:', err);
@@ -46,7 +46,7 @@ export async function DELETE(req) {
       return NextResponse.json({ error: 'Gallery item ID is required' }, { status: 400 });
     }
 
-    const deleted = db.deleteGalleryItem(id);
+    const deleted = await db.deleteGalleryItem(id);
     if (!deleted) {
       return NextResponse.json({ error: 'Gallery item not found' }, { status: 404 });
     }

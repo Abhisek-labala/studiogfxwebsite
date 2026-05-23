@@ -17,7 +17,7 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Please enter a valid email address' }, { status: 400 });
     }
 
-    const newMsg = db.addMessage(body);
+    const newMsg = await db.addMessage(body);
     return NextResponse.json({ success: true, message: newMsg });
   } catch (err) {
     console.error('Messages POST error:', err);
@@ -32,7 +32,7 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized administrative access' }, { status: 401 });
     }
 
-    const messages = db.getMessages();
+    const messages = await db.getMessages();
     return NextResponse.json(messages);
   } catch (err) {
     console.error('Messages GET error:', err);
@@ -54,7 +54,7 @@ export async function PUT(req) {
       return NextResponse.json({ error: 'Message ID is required' }, { status: 400 });
     }
 
-    const updated = db.markMessageRead(id, read !== false);
+    const updated = await db.markMessageRead(id, read !== false);
     if (!updated) {
       return NextResponse.json({ error: 'Message not found' }, { status: 404 });
     }
@@ -80,7 +80,7 @@ export async function DELETE(req) {
       return NextResponse.json({ error: 'Message ID is required' }, { status: 400 });
     }
 
-    const deleted = db.deleteMessage(id);
+    const deleted = await db.deleteMessage(id);
     if (!deleted) {
       return NextResponse.json({ error: 'Message not found' }, { status: 404 });
     }

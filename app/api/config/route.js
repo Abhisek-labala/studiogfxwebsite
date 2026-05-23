@@ -4,7 +4,7 @@ import { auth } from '../../../lib/auth';
 
 export async function GET() {
   try {
-    const config = db.getConfig();
+    const config = await db.getConfig();
     return NextResponse.json(config);
   } catch (err) {
     console.error('Config GET error:', err);
@@ -21,7 +21,7 @@ export async function POST(req) {
     }
 
     const body = await req.json();
-    const updated = db.updateConfig(body);
+    const updated = await db.updateConfig(body);
     return NextResponse.json({ success: true, config: updated });
   } catch (err) {
     console.error('Config POST error:', err);

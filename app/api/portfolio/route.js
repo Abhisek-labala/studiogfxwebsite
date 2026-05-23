@@ -4,7 +4,7 @@ import { auth } from '../../../lib/auth';
 
 export async function GET() {
   try {
-    const portfolio = db.getPortfolio();
+    const portfolio = await db.getPortfolio();
     return NextResponse.json(portfolio);
   } catch (err) {
     console.error('Portfolio GET error:', err);
@@ -24,7 +24,7 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Project title is required' }, { status: 400 });
     }
 
-    const newProject = db.addPortfolioProject(body);
+    const newProject = await db.addPortfolioProject(body);
     return NextResponse.json({ success: true, project: newProject });
   } catch (err) {
     console.error('Portfolio POST error:', err);
@@ -46,7 +46,7 @@ export async function PUT(req) {
       return NextResponse.json({ error: 'Project ID is required' }, { status: 400 });
     }
 
-    const updated = db.updatePortfolioProject(id, updatedFields);
+    const updated = await db.updatePortfolioProject(id, updatedFields);
     if (!updated) {
       return NextResponse.json({ error: 'Project not found' }, { status: 404 });
     }
@@ -72,7 +72,7 @@ export async function DELETE(req) {
       return NextResponse.json({ error: 'Project ID is required' }, { status: 400 });
     }
 
-    const deleted = db.deletePortfolioProject(id);
+    const deleted = await db.deletePortfolioProject(id);
     if (!deleted) {
       return NextResponse.json({ error: 'Project not found' }, { status: 404 });
     }

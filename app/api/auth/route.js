@@ -10,7 +10,7 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Username and password are required' }, { status: 400 });
     }
 
-    const admin = db.getAdmin();
+    const admin = await db.getAdmin();
 
     if (username !== admin.username || !auth.comparePassword(password, admin.passwordHash)) {
       return NextResponse.json({ error: 'Invalid administrative credentials' }, { status: 401 });
