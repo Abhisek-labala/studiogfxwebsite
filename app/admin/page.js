@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import styles from './admin.module.css';
 
 export default function AdminLoginPage() {
@@ -154,7 +155,7 @@ export default function AdminLoginPage() {
           </button>
         </form>
 
-        <a href="/" style={{
+        <Link href="/" style={{
           fontSize: '0.8rem',
           textAlign: 'center',
           color: 'var(--text-dim)',
@@ -162,7 +163,7 @@ export default function AdminLoginPage() {
           cursor: 'pointer'
         }}>
           Return to Public Site
-        </a>
+        </Link>
       </div>
     </div>
   );

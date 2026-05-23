@@ -50,6 +50,29 @@ export default function AdminDashboardPage() {
   // Action status indicators
   const [alertInfo, setAlertInfo] = useState({ tab: '', success: null, message: '' });
 
+  // Load all system data
+  async function loadAllData() {
+    try {
+      const [configRes, galleryRes, portfolioRes, messagesRes] = await Promise.all([
+        fetch('/api/config'),
+        fetch('/api/gallery'),
+        fetch('/api/portfolio'),
+        fetch('/api/messages')
+      ]);
+
+      if (configRes.ok) {
+        const c = await configRes.json();
+        setConfig(c);
+        setConfigForm(c);
+      }
+      if (galleryRes.ok) setGallery(await galleryRes.json());
+      if (portfolioRes.ok) setPortfolio(await portfolioRes.json());
+      if (messagesRes.ok) setMessages(await messagesRes.json());
+    } catch (err) {
+      console.error('Failed to reload systems:', err);
+    }
+  }
+
   // 1. Session verification on load
   useEffect(() => {
     async function verifyAuth() {
@@ -75,29 +98,6 @@ export default function AdminDashboardPage() {
     }
     verifyAuth();
   }, [router]);
-
-  // Load all system data
-  async function loadAllData() {
-    try {
-      const [configRes, galleryRes, portfolioRes, messagesRes] = await Promise.all([
-        fetch('/api/config'),
-        fetch('/api/gallery'),
-        fetch('/api/portfolio'),
-        fetch('/api/messages')
-      ]);
-
-      if (configRes.ok) {
-        const c = await configRes.json();
-        setConfig(c);
-        setConfigForm(c);
-      }
-      if (galleryRes.ok) setGallery(await galleryRes.json());
-      if (portfolioRes.ok) setPortfolio(await portfolioRes.json());
-      if (messagesRes.ok) setMessages(await messagesRes.json());
-    } catch (err) {
-      console.error('Failed to reload systems:', err);
-    }
-  }
 
   // Trigger temporary notification banners
   const triggerAlert = (tab, success, message) => {
